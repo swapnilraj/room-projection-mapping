@@ -23,6 +23,8 @@ So the final visual result is always a **compound product** of:
 
 That is the whole system.
 
+**In the simulator:** The toolbar lets you switch between **Digital Ideal** (monitor-like, screen blend) and **Physical Approx** (this full compound model: surface, ambient, projector limits).
+
 ---
 
 ## 2. The optical model
@@ -41,6 +43,8 @@ The projector sends light in certain spectral bands.
 The base image and substrate decide how much of each band gets sent back to the eye.
 
 So the base image is not passive. It acts as a **wavelength-selective filter**.
+
+**In the simulator:** **Physical Approx** mode implements this: projected light is multiplied by the reflectance map (derived from the base image with Surface gamma and floor). **Digital Ideal** mode skips the reflectance multiply and uses a simple screen blend.
 
 ---
 
@@ -97,6 +101,8 @@ So every coloured region of the base image creates a different local response to
 
 This means the same projected animation can look radically different as it crosses different zones of the print.
 
+**In the simulator:** The base image is set via **Upload Image** or the **preset** dropdown (e.g. Falling Up). The reflectance map is built from that image (gamma + floor); every region’s response to the projection is determined by that map, so colour survival varies by zone automatically.
+
 ---
 
 ## 5. Role of luminance in the base image
@@ -135,11 +141,22 @@ It reads badly when it depends on:
 
 That is why the animated layer must usually be designed as **moving light**, not moving shade.
 
+**In the simulator:** Luminance behaviour comes from the reflectance multiply: dark base areas absorb more projected light, bright areas reflect more. There is no separate “luminance” control; the **Effects stack** is designed as moving light (glow, bloom, particles, edge drift).
+
 ---
 
 ## 6. Surface reflectance and material behaviour
 
 The substrate matters as much as the printed colour.
+
+### How the simulator models surface reflectance
+
+The simulator does **not** use the raw base image as the reflectance filter. Raw sRGB pixel values underestimate how much light dark printed areas actually reflect. Two parameters model real paper/ink behaviour:
+
+- **Surface gamma** (e.g. 0.5): A power curve applied per channel. Values &lt; 1 lift darks, so that dark regions of the print still reflect a plausible amount of projected light. This approximates the non-linear relationship between print density and reflectance (similar in spirit to print/reflectance models, but not a full spectral simulation).
+- **Surface floor** (e.g. 3%): A minimum reflectance per channel. Real surfaces always reflect some light; the floor prevents fully black areas and keeps the multiply stable.
+
+The **reflectance map** is then: `reflectance = floor + (1 − floor) × (pixel/255)^gamma`, applied to the base image. Projected light is **multiplied** by this map, so dark print absorbs more and bright print reflects more. Black level (projector leak) is also filtered through the same reflectance map, not the raw base.
 
 ### Matte surface
 
@@ -149,6 +166,8 @@ The substrate matters as much as the printed colour.
 * lower punch
 * better for glow and atmosphere
 
+In the simulator: **Matte** = no extra pass (baseline reflectance × projection only).
+
 ### Glossy surface
 
 * stronger highlights
@@ -156,15 +175,19 @@ The substrate matters as much as the printed colour.
 * can create glare and hotspots
 * can break the illusion
 
+In the simulator: **Glossy** = overlay blend of the filtered projection (suggestive highlight, not calibrated).
+
 ### Textured surface
 
 * scatters light unevenly
 * can create beautiful organic glow
 * can also destroy fine detail and edge consistency
 
+In the simulator: **Textured** = subtle noise multiply on the reflectance-filtered result (suggestive only).
+
 ### Canvas / paper / wall paint
 
-Each has a different reflectance profile and different scattering behaviour.
+Each has a different reflectance profile and different scattering behaviour. In the simulator: **Canvas** = light blur plus noise multiply (suggestive). The simulator does not simulate full spectral or BRDF behaviour; materials are perceptual hints.
 
 So the visual result is not just colour-dependent, but also **material-dependent**.
 
@@ -194,6 +217,8 @@ Some projectors have:
 
 That is why some hues feel stronger than others even before they hit the wall.
 
+**In the simulator:** **Projector brightness** = **Projector Brightness** slider. **Imperfect primaries / non-ideal spectrum** = **Spectral Bleed** slider (3×3 RGB crosstalk matrix; e.g. blue leaks into green). **Projection Color** picker sets the effective “white” of the projector. **Color Temperature** = warm / neutral / cool tint multiply. **Non-ideal blacks** = **Black Level** slider (see §12).
+
 ---
 
 ## 8. Human visual perception
@@ -221,6 +246,8 @@ So the final image is not only physics. It is also perception.
 
 A colour may have mediocre physical output but still feel radiant because of contextual contrast.
 
+**In the simulator:** Perception is not simulated (no contrast adaptation, halo model, etc.). What you see is the physical-style composite only.
+
 ---
 
 ## 9. Ambient light contamination
@@ -244,6 +271,8 @@ In a brighter room:
 * colour subtleties collapse
 * glow effects weaken
 * the piece starts looking flatter and more decorative
+
+**In the simulator:** **Ambient Light** slider (0–100%) sets the alpha of the base image layer before the projected light is added. Higher = room light raises the base and flattens contrast.
 
 ---
 
@@ -273,6 +302,8 @@ For your kind of piece, where the projection is meant to look like the static im
 The more abstract and soft the image, the more forgiving it is.
 The more hard-edged the image, the more punishing small errors become.
 
+**In the simulator:** **Warp & Registration**: **Enable Corner-Pin** turns on a 4-point perspective warp (homography, 14×14 triangle mesh). Drag TL/TR/BR/BL handles to match projector angle and keystone. **Show Grid** and **Edge Overlay** help alignment. Working resolution is capped at 1024 px wide. Lens distortion is not simulated, only perspective.
+
 ---
 
 ## 11. Registration between base image and projected image
@@ -297,6 +328,8 @@ For an artwork like yours, registration is especially important around:
 * any rising trail or stretch extension
 
 This is why simple shape language works better than overly detailed source images.
+
+**In the simulator:** Registration is the **warp** (corner-pin) plus the alignment overlays. **Onion Skin** slider draws the base image over the composite so you can check how well the projection lines up with the print.
 
 ---
 
@@ -323,6 +356,8 @@ Subtle tonal steps may collapse when projected onto a textured coloured print.
 So your usable image range is smaller than what your monitor suggests.
 
 This is one reason why pale luminous cores and clear glow zones often work better than nuanced low-contrast tonal play.
+
+**In the simulator:** **Black level** = **Black Level** slider: a warm flat “leak” colour is multiplied by the reflectance map and added (projectors don’t produce true black). **Brightness ceiling** = **Projector Brightness** slider scales the whole projected layer. **Digital Ideal** mode shows the “ideal” screen blend; **Physical Approx** shows the compressed range.
 
 ---
 
@@ -362,6 +397,8 @@ A warm subject zone may do the opposite.
 That means your animation cannot assume one global colour behaviour.
 It has to be designed with the base image’s local gamut constraints in mind.
 
+**In the simulator:** Gamut collapse is the natural result of the reflectance multiply: each region of the base image scales the projected RGB differently. There is no separate “gamut” control; **Projection Color**, **Spectral Bleed**, and **Color Temperature** shape the projector side; the base image and **Surface gamma/floor** shape the surface side.
+
 ---
 
 ## 14. Why mud happens
@@ -380,6 +417,8 @@ Mud usually comes from some combination of:
 
 A muddy result is not one single technical fault.
 It is the combined outcome of low radiance, low clarity, and weak contrast.
+
+**In the simulator:** Mud is influenced by **Ambient Light** (too high flattens), **Surface gamma/floor**, **Spectral Bleed**, **Scatter**, and **Black Level**. The **Compare** button shows Base / Digital Ideal / Physical Approx side by side to see where the physical model diverges.
 
 ---
 
@@ -409,6 +448,8 @@ Edge structure strongly affects whether something reads as:
 
 For your piece, soft edges are essential. The projection should feel like the artwork is self-modifying, not that a second separate image is sitting on top.
 
+**In the simulator:** Effects use soft gradients and blur (radial gradients, bloom, particle glows, edge drift). There is no explicit “edge hardness” control; design the effect layer to stay soft.
+
 ---
 
 ## 16. Motion design constraints
@@ -435,6 +476,8 @@ Not all motion reads equally well in projection.
 * complex chromatic shifts with no brightness change
 
 So the animation must be designed around **perceptually legible events**, not purely digital ones.
+
+**In the simulator:** The **Effects stack** provides: **Glow Pulse** (radial pulse, centre/radius/speed/min–max alpha, RGB), **Bloom Expansion** (expanding/contracting radial bloom), **Rising Particles** (particle count, speed, size, spread, origin Y, RGB), **Edge Drift** (edge map–driven drift, speed, brightness, width, RGB). Each effect has per-parameter sliders and can be toggled or removed. **Speed** (footer) and **Play/Pause** control global animation time. Add/remove effects via **+ Add**; save/load **Presets** (JSON) to capture the full stack and environment.
 
 ---
 
@@ -468,6 +511,8 @@ There must be room for the animated event to expand into, especially if the moti
 
 Busy images make motion harder to read and mapping errors easier to notice.
 
+**In the simulator:** Base image is chosen via **Upload Image** or the **preset** dropdown. Optical compatibility is tuned with **Surface gamma/floor** and **Ambient**; the **Effects stack** is the motion layer (glow, bloom, particles, edge drift). Presets store a full snapshot (env + warp + effects) for repeatable “come alive” setups.
+
 ---
 
 ## 18. Best base-image properties for projection mapping
@@ -485,6 +530,8 @@ A good base image for this kind of installation usually has:
 
 It should behave like a stage set for light, not a finished colour argument that the projector has to fight.
 
+**In the simulator:** Use **Upload Image** or a preset (e.g. Falling Up) that matches these properties; adjust **Surface gamma/floor** and **Ambient** until the base reads as a stage, not flat or crushed.
+
 ---
 
 ## 19. Best projected-image properties
@@ -501,6 +548,8 @@ A good projected layer usually has:
 * simple, readable deformation patterns
 
 The projected layer should usually be the **peak light event** in the system.
+
+**In the simulator:** Design the **Effects stack** (Glow Pulse, Bloom Expansion, Rising Particles, Edge Drift) and **Projector Brightness** / **Projection Color** so the projected layer is the brightest element; use **Physical Approx** and **Compare** to check against the base.
 
 ---
 
@@ -634,4 +683,67 @@ It is the optical rulebook that determines:
 
 That is the system you are designing.
 
-I can turn this into a cleaner one-page memo next, with sections like **Optics, Perception, Constraints, and Design Implications for Falling Up**.
+---
+
+## 25. Simulator implementation reference
+
+The web **Projection Simulator** (Next.js app at `/`, static build in `simulator/`) implements the model described above. This section is the full implementation reference.
+
+### Modes
+
+| Mode | Behaviour |
+|------|-----------|
+| **Digital Ideal** | Base image + screen blend of projection at brightness. No reflectance, no black level, no bloom/scatter. “Monitor” preview. |
+| **Physical Approx** | Ambient (base × ambient alpha) → black-level leak (× reflectance) → projection with bloom (× reflectance × material) → scatter. Full optical approximation. |
+
+**Compare** shows Base only, Digital Ideal, and Physical Approx side by side.
+
+### Environment parameters (Physical mode)
+
+| Parameter | UI | Default | Effect |
+|-----------|----|---------|--------|
+| **ambient** | Ambient Light (%) | 15 | Alpha of base image layer (room light). |
+| **brightness** | Projector Brightness (%) | 85 | Scale of projected layer (and leak, scatter). |
+| **blackLevel** | Black Level (%) | 0 | Warm leak colour × reflectance map, added. |
+| **lensBloom** | Lens Bloom (%) | 5 | Blurred copy of projection added (two radii). |
+| **spectralBleed** | Spectral Bleed (%) | 70 | Scale of 3×3 RGB crosstalk matrix. |
+| **surfaceGamma** | Surface Gamma | 0.50 | Power curve for reflectance map (per channel). |
+| **surfaceFloor** | Surface Floor (%) | 3 | Minimum reflectance per channel. |
+| **scatter** | Scatter (%) | 10 | Heavily blurred projection added (not × reflectance). |
+| **projColor** | Projection Color | #ffffff | RGB of projector “white”; effects are tinted. |
+| **temp** | Color Temperature | neutral | warm / neutral / cool tint multiply. |
+| **material** | Material | matte | matte / glossy / textured / canvas (see §6). |
+
+### Base image and reflectance
+
+- **Base image:** Upload or preset (e.g. Falling Up). Max working width 1024 px.
+- **Reflectance map:** `floor + (1 − floor) × (pixel/255)^gamma` per channel, rebuilt when gamma or floor change. Projection and black-level leak are multiplied by this map.
+
+### Warp and registration
+
+- **Corner-pin:** 4 corners (TL, TR, BR, BL), homography, 14×14 triangle mesh. Drag handles when **Enable Corner-Pin** is on. **Reset Warp** restores unit quad.
+- **Show Grid** / **Edge Overlay:** Alignment aids.
+- **Onion Skin:** Base image drawn over composite (0–100%).
+
+### Effects stack
+
+- **Glow Pulse:** Radial pulse (centre, radius, speed, min/max alpha, RGB).
+- **Bloom Expansion:** Expanding/contracting radial bloom (centre, max radius, speed, softness, RGB).
+- **Rising Particles:** Particles rising from origin Y (count, speed, size, spread, RGB).
+- **Edge Drift:** Edge-map–driven drift + tint (speed, brightness, width, RGB).
+
+Effects are composited in order onto the projection canvas, then the result goes through the physical pipeline (crosstalk if non-white, warp if enabled, reflectance × material, scatter). **Speed** and **Play/Pause** control global time.
+
+### Presets and calibration
+
+- **Presets:** JSON files (e.g. `presets/falling-up.json`) store env, warp, effects, mode, speed. **Save Preset** / **Load Preset** (file) or load from URL on init.
+- **Calibration API:** `window._calibration` (see `docs/CALIBRATION.md`): `setEnv`, `setFlatProjection`, `sampleRegion`, `sampleAll`, `forceRender`. Used by `scripts/calibrate-simulator.js` to fit parameters to a real-world photo.
+
+### Other UI
+
+- **Export PNG:** Snapshot of current view (or Compare layout).
+- **FPS** and **canvas size** in footer.
+
+### Not implemented
+
+Full spectral simulation, view-dependent BRDF, lens distortion (only perspective warp), perceptual models (contrast adaptation, halos). The simulator is an **approximation** for preview and calibration; use `scripts/calibrate-simulator.js` to fit env parameters to a reference photo.
