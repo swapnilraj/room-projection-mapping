@@ -29,6 +29,16 @@ The simulator exposes `window._calibration` for programmatic tuning. Use `script
 
 See **[docs/CALIBRATION.md](docs/CALIBRATION.md)** for the full calibration process.
 
+## Visual loop test
+
+End-to-end check that the simulator loads, renders, and responds:
+
+1. Start simulator: `npm run dev`
+2. Start Brave with `--remote-debugging-port=9222`
+3. Run: `npm run visual-test`
+
+Passes if: canvas has content, base image loaded, FPS running, calibration API present. Use `--loop N` to run N times. Screenshot saved to `assets/visual-loop-test.png`.
+
 ## Repo structure
 
 | Path | Purpose |

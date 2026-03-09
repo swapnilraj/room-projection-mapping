@@ -24,3 +24,4 @@ Load this when working on `scripts/` or automation.
 |--------|---------|
 | `fb-marketplace-projectors.js` | CDP + Brave, searches FB Marketplace for projectors |
 | `calibrate-simulator.js` | CDP + Brave on 9222, calibrates simulator against real-world photo. Uses SIM_URL (default localhost:3000). See `docs/CALIBRATION.md`. |
+| `visual-loop-test.js` | CDP + Brave on 9222, visual regression test. Checks canvas content, base image, FPS, calibration API. `npm run visual-test`. Use `--loop N` to repeat. |
