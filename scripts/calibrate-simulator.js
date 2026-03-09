@@ -8,14 +8,22 @@
  * spectralBleed) and projector parameters (blackLevel, lensBloom).
  *
  * Usage:
- *   1. Start Brave:  --remote-debugging-port=9222
- *   2. Serve repo:   npx serve . -p 3847
- *   3. Run:          node scripts/calibrate-simulator.js
+ *   1. Start Brave with remote debugging:
+ *        brave-browser --remote-debugging-port=9222
+ *   2. Run the Next.js simulator (choose one):
+ *        npm run dev              → http://localhost:3000
+ *        Or use a deployed URL    → set SIM_URL=https://your-app.vercel.app
+ *   3. Run calibration:
+ *        node scripts/calibrate-simulator.js
+ *
+ * Environment:
+ *   SIM_URL     Simulator URL (default: http://localhost:3000)
+ *   DEBUG_PORT  Browser CDP port (default: 9222)
  */
 
 const http = require('http');
 const PORT = parseInt(process.env.DEBUG_PORT || process.argv[2] || '9222', 10);
-const SIM_URL = process.env.SIM_URL || 'http://localhost:3847/simulator/';
+const SIM_URL = process.env.SIM_URL || 'http://localhost:3000';
 
 // ── Target colors from real_world.jpg ─────────────────────────────
 // Sampled from the print area of the camera-captured photo

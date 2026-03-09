@@ -1444,7 +1444,11 @@ async function init() {
   requestAnimationFrame(render);
 }
 
-document.addEventListener('DOMContentLoaded', init);
+if (document.readyState !== 'loading') {
+  init();
+} else {
+  document.addEventListener('DOMContentLoaded', init);
+}
 
 // ═══════════════════════════════════════════════════════════════════
 //  CALIBRATION API (called from external scripts via page.evaluate)

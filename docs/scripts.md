@@ -23,4 +23,4 @@ Load this when working on `scripts/` or automation.
 | Script | Purpose |
 |--------|---------|
 | `fb-marketplace-projectors.js` | CDP + Brave, searches FB Marketplace for projectors |
-| `calibrate-simulator.js` | CDP + browser, calibrates simulator against real-world photo; requires serve + Brave on 9222 |
+| `calibrate-simulator.js` | CDP + Brave on 9222, calibrates simulator against real-world photo. Uses SIM_URL (default localhost:3000). See `docs/CALIBRATION.md`. |

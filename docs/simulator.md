@@ -4,6 +4,10 @@ Load this when modifying the projection simulator or its physical model.
 
 ## Structure
 
+**Next.js (primary):** `app/`, `public/simulator.js`, `public/falling-up.jpeg`, `public/presets/`  
+Deploy with Vercel. Simulator runs at `/` when `npm run dev` or deployed.
+
+**Static (legacy):**
 ```
 simulator/
 ├── index.html     ← UI, controls
@@ -12,6 +16,8 @@ simulator/
 ├── presets/       ← JSON presets
 └── README.md      ← User-facing docs, controls, rendering model
 ```
+
+`public/simulator.js` is a copy of `simulator/app.js` with absolute paths for Next.js.
 
 ## Calibration API
 
@@ -22,6 +28,8 @@ simulator/
 - `sampleRegion(nx, ny, size)` — Sample RGB from preview canvas
 - `sampleAll(regions)` — Batch sample
 - `forceRender()` — Run render pipeline once (no rAF loop)
+
+See `docs/CALIBRATION.md` for the calibration process and usage.
 
 ## Physical model
 

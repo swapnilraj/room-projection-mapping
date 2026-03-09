@@ -41,5 +41,6 @@ room-projection-mapping/
 | Topic | Doc |
 |-------|-----|
 | Scripts, CDP, Brave | `docs/scripts.md` |
-| Simulator, calibration | `docs/simulator.md` |
+| Simulator, calibration API | `docs/simulator.md` |
+| Calibration process, usage | `docs/CALIBRATION.md` |
 | Optical theory (base × projection) | `VISUAL_COLOUR_CONSTRAINTS.md` |
