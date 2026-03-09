@@ -1,0 +1,13 @@
+{
+  "name": "fb-marketplace-projectors",
+  "private": true,
+  "description": "Connect to Brave with dev port and list Facebook Marketplace projectors",
+  "scripts": {
+    "start": "node fb-marketplace-projectors.js",
+    "run": "node fb-marketplace-projectors.js"
+  },
+  "dependencies": {
+    "puppeteer-core": "^23.0.0",
+    "ws": "^8.19.0"
+  }
+}

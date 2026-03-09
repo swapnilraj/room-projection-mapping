@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "env": {
+    "ambient": 0.12,
+    "brightness": 0.85,
+    "temp": "neutral",
+    "material": "matte"
+  },
+  "warp": {
+    "enabled": false,
+    "corners": [[0, 0], [1, 0], [1, 1], [0, 1]]
+  },
+  "showGrid": false,
+  "showEdgeOverlay": false,
+  "onionSkin": 0,
+  "speed": 1,
+  "mode": "physical",
+  "effects": [
+    {
+      "type": "glowPulse",
+      "enabled": true,
+      "params": {
+        "cx": 0.5,
+        "cy": 0.38,
+        "radius": 0.35,
+        "speed": 0.8,
+        "minAlpha": 0.1,
+        "maxAlpha": 0.65,
+        "r": 200,
+        "g": 220,
+        "b": 255
+      }
+    },
+    {
+      "type": "risingParticles",
+      "enabled": true,
+      "params": {
+        "count": 50,
+        "speed": 30,
+        "size": 2.5,
+        "spread": 0.5,
+        "originY": 0.55,
+        "r": 210,
+        "g": 200,
+        "b": 255
+      }
+    },
+    {
+      "type": "bloomExpansion",
+      "enabled": true,
+      "params": {
+        "cx": 0.5,
+        "cy": 0.35,
+        "maxRadius": 0.4,
+        "speed": 0.5,
+        "softness": 0.7,
+        "r": 255,
+        "g": 245,
+        "b": 230
+      }
+    },
+    {
+      "type": "edgeDrift",
+      "enabled": true,
+      "params": {
+        "speed": 0.5,
+        "brightness": 0.45,
+        "width": 3,
+        "r": 180,
+        "g": 200,
+        "b": 255
+      }
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projection Simulator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+
+    <header class="toolbar">
+      <h1 class="toolbar-title">Projection Simulator</h1>
+      <div class="toolbar-actions">
+        <label class="mode-toggle">
+          <input type="radio" name="mode" value="digital" id="modeDigital">
+          <span>Digital Ideal</span>
+        </label>
+        <label class="mode-toggle">
+          <input type="radio" name="mode" value="physical" id="modePhysical" checked>
+          <span>Physical Approx</span>
+        </label>
+        <button id="btnCompare" class="btn btn-outline">Compare</button>
+        <button id="btnExport" class="btn btn-primary">Export PNG</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+
+      <aside class="panel panel-left">
+        <section class="panel-section">
+          <h2 class="section-title">Base Image</h2>
+          <button id="btnUpload" class="btn btn-block">Upload Image</button>
+          <input type="file" id="fileInput" accept="image/*" hidden>
+          <select id="presetImage" class="select">
+            <option value="">-- preset --</option>
+            <option value="../falling-up.jpeg" selected>Falling Up</option>
+          </select>
+        </section>
+
+        <section class="panel-section">
+          <h2 class="section-title">Environment</h2>
+          <label class="slider-label">
+            Ambient Light
+            <input type="range" id="ambientLight" min="0" max="100" value="15" class="slider">
+            <span class="slider-value" data-for="ambientLight">15%</span>
+          </label>
+          <label class="slider-label">
+            Projector Brightness
+            <input type="range" id="projBrightness" min="0" max="100" value="85" class="slider">
+            <span class="slider-value" data-for="projBrightness">85%</span>
+          </label>
+          <label class="slider-label">
+            Black Level
+            <input type="range" id="blackLevel" min="0" max="30" value="0" class="slider">
+            <span class="slider-value" data-for="blackLevel">0%</span>
+          </label>
+          <label class="slider-label">
+            Lens Bloom
+            <input type="range" id="lensBloom" min="0" max="100" value="5" class="slider">
+            <span class="slider-value" data-for="lensBloom">5%</span>
+          </label>
+          <label class="slider-label">
+            Spectral Bleed
+            <input type="range" id="spectralBleed" min="0" max="100" value="70" class="slider">
+            <span class="slider-value" data-for="spectralBleed">70%</span>
+          </label>
+          <label class="slider-label">
+            Surface Gamma
+            <input type="range" id="surfaceGamma" min="20" max="120" value="50" class="slider">
+            <span class="slider-value" data-for="surfaceGamma">0.50</span>
+          </label>
+          <label class="slider-label">
+            Surface Floor
+            <input type="range" id="surfaceFloor" min="0" max="15" value="3" class="slider">
+            <span class="slider-value" data-for="surfaceFloor">3%</span>
+          </label>
+          <label class="slider-label">
+            Scatter
+            <input type="range" id="scatter" min="0" max="50" value="10" class="slider">
+            <span class="slider-value" data-for="scatter">10%</span>
+          </label>
+          <div class="color-wheel-section">
+            <span class="slider-label" style="margin-bottom:6px">Projection Color</span>
+            <div class="color-wheel-wrap">
+              <canvas id="colorWheel" width="180" height="180"></canvas>
+            </div>
+            <div class="color-wheel-footer">
+              <input type="color" id="projColor" value="#ffffff" class="color-picker">
+              <input type="text" id="projColorHex" value="#ffffff" class="hex-input" maxlength="7" spellcheck="false">
+            </div>
+          </div>
+          <label class="slider-label">
+            Color Temperature
+            <select id="projTemp" class="select">
+              <option value="warm">Warm</option>
+              <option value="neutral" selected>Neutral</option>
+              <option value="cool">Cool</option>
+            </select>
+          </label>
+          <label class="slider-label">
+            Material
+            <select id="materialType" class="select">
+              <option value="matte" selected>Matte</option>
+              <option value="glossy">Glossy</option>
+              <option value="textured">Textured</option>
+              <option value="canvas">Canvas</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="panel-section">
+          <h2 class="section-title">Warp &amp; Registration</h2>
+          <label class="checkbox-label">
+            <input type="checkbox" id="warpEnabled"> Enable Corner-Pin
+          </label>
+          <button id="btnResetWarp" class="btn btn-small">Reset Warp</button>
+          <label class="checkbox-label">
+            <input type="checkbox" id="showGrid"> Show Grid
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="showEdgeOverlay"> Edge Overlay
+          </label>
+          <label class="slider-label">
+            Onion Skin
+            <input type="range" id="onionSkin" min="0" max="100" value="0" class="slider">
+            <span class="slider-value" data-for="onionSkin">0%</span>
+          </label>
+        </section>
+
+        <section class="panel-section">
+          <h2 class="section-title">Presets</h2>
+          <button id="btnSavePreset" class="btn btn-small">Save Preset</button>
+          <button id="btnLoadPreset" class="btn btn-small">Load Preset</button>
+          <input type="file" id="presetFileInput" accept=".json" hidden>
+        </section>
+      </aside>
+
+      <div class="canvas-area">
+        <div class="canvas-wrapper" id="canvasWrapper">
+          <canvas id="preview"></canvas>
+        </div>
+        <div class="canvas-status">
+          <span id="statusFps">-- fps</span>
+          <span id="statusSize">--</span>
+        </div>
+      </div>
+
+      <aside class="panel panel-right">
+        <section class="panel-section">
+          <h2 class="section-title">
+            Effects Stack
+            <button id="btnAddEffect" class="btn btn-small btn-accent">+ Add</button>
+          </h2>
+          <div id="effectAddMenu" class="effect-add-menu hidden">
+            <button data-type="glowPulse" class="btn btn-small">Glow Pulse</button>
+            <button data-type="bloomExpansion" class="btn btn-small">Bloom Expansion</button>
+            <button data-type="risingParticles" class="btn btn-small">Rising Particles</button>
+            <button data-type="edgeDrift" class="btn btn-small">Edge Drift</button>
+          </div>
+          <div id="effectsList" class="effects-list"></div>
+        </section>
+      </aside>
+
+    </main>
+
+    <footer class="statusbar">
+      <button id="btnPlayPause" class="btn btn-small">⏸ Pause</button>
+      <label class="slider-label slider-inline">
+        Speed
+        <input type="range" id="animSpeed" min="10" max="300" value="100" class="slider slider-narrow">
+        <span class="slider-value" data-for="animSpeed">1.0x</span>
+      </label>
+    </footer>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
